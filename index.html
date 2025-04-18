@@ -9,6 +9,25 @@
     gtag('js', new Date());
   
     gtag('config', 'G-CYC6CW876P');
+    gtag('config', 'AW-17005180128');
+  </script>
+
+  <!-- Event snippet for Button Klick conversion page -->
+  <script>
+  function gtag_report_conversion(url) {
+    var callback = function () {
+      if (typeof(url) != 'undefined') {
+        window.location = url;
+      }
+    };
+    gtag('event', 'conversion', {
+        'send_to': 'AW-17005180128/rfrbCKnvzLkaEODp2aw_',
+        'value': 1000.0,
+        'currency': 'EUR',
+        'event_callback': callback
+    });
+    return false;
+  }
   </script>
   
   <meta charset="UTF-8">
@@ -16,9 +35,9 @@
   <title>Testseite für Traffic</title>
 </head>
 <body>
-  <h1>Testseite für Traffic neu</h1>
+  <h1>Testseite für Traffic</h1>
   <p>Dies ist eine einfache Seite, um Website-Traffic in GA4 zu testen.</p>
   <!-- Button für Conversion -->
-  <button>Kontakt</button>
+  <button id="contact-button" onclick="gtag_report_conversion('/kontakt')">Kontakt aber zackzack</button>
 </body>
 </html>
