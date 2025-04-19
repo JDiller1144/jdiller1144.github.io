@@ -12,7 +12,8 @@
     gtag('config', 'AW-17005180128');
   </script>
 
-  <!-- Event snippet for Button Klick conversion page -->
+  <!-- Event snippet for Button Klick conversion page
+  In your html page, add the snippet and call gtag_report_conversion when someone clicks on the chosen link or button. -->
   <script>
   function gtag_report_conversion(url) {
     var callback = function () {
@@ -29,15 +30,16 @@
     return false;
   }
   </script>
+
   
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Testseite für Traffic</title>
 </head>
 <body>
-  <h1>Testseite für Traffic</h1>
+  <h1>Testseite für Traffic next try</h1>
   <p>Dies ist eine einfache Seite, um Website-Traffic in GA4 zu testen.</p>
   <!-- Button für Conversion -->
-  <button id="contact-button" onclick="gtag_report_conversion('/test-website/')">Kontakt aber zackzack</button>
+  <button onclick="gtag_report_conversion('/')">Kontakt aber zackzack</button>
 </body>
 </html>
