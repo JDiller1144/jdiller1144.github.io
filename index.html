@@ -204,30 +204,30 @@
         <h1>🔗 Clean Barcode & QR Generator</h1>
         
         <div class="info-box">
-            <h3>📊 Exact Requirements Generator</h3>
-            <p>Generate 4000 clean PNG files for values 4000 to 5999<br>
-            • 2000 Code 128 barcodes (with proper checksums)<br>
-            • 2000 QR codes</p>
+            <h3>📊 Code 128 Barcode Generator</h3>
+            <p>Generate 2000 clean PNG files for values 4000 to 5999<br>
+            • Code 128 barcodes only (with proper checksums)<br>
+            • No text labels - pure barcode lines only</p>
         </div>
 
         <div class="requirements-box">
             <h4>✅ Your Requirements:</h4>
             <ul>
-                <li>Clean images with ONLY barcode/QR lines (no text labels)</li>
+                <li>Clean images with ONLY barcode lines (no text, no labels)</li>
                 <li>Code 128 barcodes with proper checksums</li>
                 <li>PNG format only</li>
-                <li>Values 4000-5999 (2000 each type)</li>
+                <li>Values 4000-5999 (2000 barcodes)</li>
                 <li>Single ZIP download</li>
             </ul>
         </div>
         
         <div class="download-info">
-            💾 Files will be named: barcode_4000.png, qr_4000.png, etc.
+            💾 Files will be named: barcode_4000.png, barcode_4001.png, etc.
         </div>
         
         <div class="button-group">
             <button class="btn-preview" onclick="generatePreview()">🔍 Preview Clean Samples</button>
-            <button class="btn-generate" onclick="generateAllCodes()">🚀 Generate All 4000 Files</button>
+            <button class="btn-generate" onclick="generateAllCodes()">🚀 Generate All 2000 Barcodes</button>
         </div>
         
         <div class="progress-container" id="progressContainer">
@@ -268,22 +268,8 @@
         }
         
         async function generateCleanQRCode(value) {
-            try {
-                const canvas = document.createElement('canvas');
-                await QRCode.toCanvas(canvas, value.toString(), {
-                    width: 200,         // Fixed size
-                    height: 200,
-                    margin: 0,          // No margins - clean QR only
-                    color: {
-                        dark: '#000000',
-                        light: '#FFFFFF'
-                    }
-                });
-                return canvas;
-            } catch (error) {
-                console.error('Error generating QR code for value:', value, error);
-                return null;
-            }
+            // QR codes removed - barcodes only
+            return null;
         }
         
         function canvasToBlob(canvas) {
@@ -325,15 +311,15 @@
             // Show progress and disable button
             progressContainer.style.display = 'block';
             generateBtn.disabled = true;
-            generateBtn.textContent = '⏳ Generating 4000 files...';
+            generateBtn.textContent = '⏳ Generating 2000 barcodes...';
             
             try {
                 const zip = new JSZip();
                 let processed = 0;
-                const totalFiles = 4000; // 2000 barcodes + 2000 QR codes
+                const totalFiles = 2000; // Only barcodes
                 
-                // Generate Code 128 barcodes (4000-5999)
-                updateProgress(0, totalFiles, 'Starting Code 128 barcodes...');
+                // Generate Code 128 barcodes only (4000-5999)
+                updateProgress(0, totalFiles, 'Code 128 barcodes');
                 for (let i = 4000; i <= 5999; i++) {
                     const canvas = generateCleanBarcode(i);
                     if (canvas) {
@@ -343,26 +329,8 @@
                         processed++;
                         
                         // Update progress every 50 files for better performance
-                        if (processed % 50 === 0 || processed === 2000) {
-                            updateProgress(processed, totalFiles, 'Code 128 barcodes');
-                            await new Promise(resolve => setTimeout(resolve, 1));
-                        }
-                    }
-                }
-                
-                // Generate QR codes (4000-5999)
-                updateProgress(processed, totalFiles, 'Starting QR codes...');
-                for (let i = 4000; i <= 5999; i++) {
-                    const canvas = await generateCleanQRCode(i);
-                    if (canvas) {
-                        const filename = `qr_${i}.png`;
-                        const blob = await canvasToBlob(canvas);
-                        zip.file(filename, blob);
-                        processed++;
-                        
-                        // Update progress every 50 files
                         if (processed % 50 === 0 || processed === totalFiles) {
-                            updateProgress(processed, totalFiles, 'QR codes');
+                            updateProgress(processed, totalFiles, 'Code 128 barcodes');
                             await new Promise(resolve => setTimeout(resolve, 1));
                         }
                     }
@@ -370,22 +338,22 @@
                 
                 // Generate and download ZIP
                 document.getElementById('progressText').textContent = 'Creating ZIP file...';
-                const zipFilename = `barcodes_and_qrcodes_4000-5999.zip`;
+                const zipFilename = `barcodes_4000-5999.zip`;
                 downloadZip(zip, zipFilename);
                 
-                showStatus(`✅ Successfully generated all 4000 files! Download started automatically.`, 'success');
+                showStatus(`✅ Successfully generated all 2000 barcodes! Download started automatically.`, 'success');
                 generateBtn.textContent = '📦 Download Complete!';
                 
             } catch (error) {
                 console.error('Error during batch generation:', error);
                 showStatus('❌ Error occurred during generation. Check console for details.', 'error');
-                generateBtn.textContent = '🚀 Generate All 4000 Files';
+                generateBtn.textContent = '🚀 Generate All 2000 Barcodes';
             } finally {
                 generateBtn.disabled = false;
                 setTimeout(() => {
                     progressContainer.style.display = 'none';
                     if (generateBtn.textContent === '📦 Download Complete!') {
-                        generateBtn.textContent = '🚀 Generate All 4000 Files';
+                        generateBtn.textContent = '🚀 Generate All 2000 Barcodes';
                     }
                 }, 5000);
             }
