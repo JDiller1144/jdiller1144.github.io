@@ -91,7 +91,8 @@
             • 2000 PNG-Dateien (Werte 4000-5999)<br>
             • Format: 200x90 Pixel<br>
             • Code-128 mit Prüfziffern<br>
-            • Barcode: 80% der Höhe, Text darunter
+            • Barcode: 80% der Höhe, Text darunter<br>
+            • <strong>📦 Download als ZIP-Datei</strong>
         </div>
 
         <div class="controls">
@@ -111,6 +112,7 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
     <script>
         // Code-128 Zeichen-Set und Encoding
         const CODE128_CHARS = {
@@ -223,17 +225,27 @@
         async function downloadImage(canvas, filename) {
             return new Promise((resolve) => {
                 canvas.toBlob((blob) => {
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = filename;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                    resolve();
+                    resolve(blob);
                 });
             });
+        }
+
+        async function downloadZip(blobs, filenames) {
+            const zip = new JSZip();
+            
+            for (let i = 0; i < blobs.length; i++) {
+                zip.file(filenames[i], blobs[i]);
+            }
+            
+            const zipBlob = await zip.generateAsync({type: "blob"});
+            const url = URL.createObjectURL(zipBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'barcodes_4000-5999.zip';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
 
         async function generateAllBarcodes() {
@@ -250,6 +262,8 @@
             
             const total = 2000;
             let completed = 0;
+            const blobs = [];
+            const filenames = [];
             
             // Vorschau des ersten Barcodes
             const previewCanvas = createBarcodeImage(4000);
@@ -262,7 +276,9 @@
                 const canvas = createBarcodeImage(i);
                 const filename = `barcode_${i}.png`;
                 
-                await downloadImage(canvas, filename);
+                const blob = await downloadImage(canvas, filename);
+                blobs.push(blob);
+                filenames.push(filename);
                 
                 completed++;
                 const progress = (completed / total) * 100;
@@ -270,12 +286,15 @@
                 status.textContent = `${completed} von ${total} Barcodes generiert (${Math.round(progress)}%)`;
                 
                 // Kleine Pause für UI-Updates
-                if (completed % 10 === 0) {
+                if (completed % 50 === 0) {
                     await new Promise(resolve => setTimeout(resolve, 1));
                 }
             }
             
-            status.textContent = '✅ Alle 2000 Barcodes erfolgreich generiert!';
+            status.textContent = '📦 Erstelle ZIP-Datei...';
+            await downloadZip(blobs, filenames);
+            
+            status.textContent = '✅ ZIP-Datei mit allen 2000 Barcodes heruntergeladen!';
             btn.disabled = false;
             btn.textContent = 'Erneut generieren';
         }
