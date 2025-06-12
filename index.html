@@ -1,548 +1,290 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Code 128 & QR Code Generator</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <title>Code-128 Barcode Generator</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            background: #f5f5f5;
         }
-        
         .container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
+            background: white;
             padding: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        
         h1 {
             color: #333;
             text-align: center;
             margin-bottom: 30px;
-            font-size: 2.2em;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
-        
-        .info-box {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-        
-        .download-info {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: center;
-            font-weight: bold;
-        }
-        
         .controls {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
             margin-bottom: 30px;
+            text-align: center;
         }
-        
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        
-        label {
-            font-weight: bold;
-            color: #555;
-        }
-        
-        input, select {
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-        
-        input:focus, select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        
-        .button-group {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        
         button {
-            flex: 1;
-            min-width: 200px;
-            padding: 15px 25px;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .btn-generate {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s;
         }
-        
-        .btn-generate:hover {
+        button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
         }
-        
-        .btn-preview {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-        }
-        
-        .btn-preview:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(240, 147, 251, 0.3);
-        }
-        
-        .btn-download {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            color: white;
-        }
-        
-        .btn-download:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(17, 153, 142, 0.3);
-        }
-        
         button:disabled {
-            opacity: 0.6;
+            background: #ccc;
             cursor: not-allowed;
-            transform: none !important;
+            transform: none;
         }
-        
-        .progress-container {
-            display: none;
+        .progress {
             margin: 20px 0;
-        }
-        
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #e0e0e0;
-            border-radius: 4px;
+            background: #f0f0f0;
+            border-radius: 10px;
             overflow: hidden;
+            height: 20px;
         }
-        
-        .progress-fill {
+        .progress-bar {
             height: 100%;
             background: linear-gradient(90deg, #667eea, #764ba2);
             width: 0%;
             transition: width 0.3s ease;
         }
-        
-        .progress-text {
-            text-align: center;
-            margin-top: 10px;
-            font-weight: bold;
-            color: #555;
-        }
-        
-        .preview-section {
-            margin-top: 30px;
-            text-align: center;
-        }
-        
-        .preview-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .preview-item {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        .preview-item canvas {
-            max-width: 100%;
-            height: auto;
-        }
-        
-        .preview-item .barcode-value {
-            margin-top: 10px;
-            font-weight: bold;
-            color: #333;
-        }
-        
         .status {
-            margin-top: 20px;
+            text-align: center;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .preview {
+            margin: 20px 0;
+            text-align: center;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+        .barcode-preview {
+            margin: 10px 0;
+        }
+        .info {
+            background: #e7f3ff;
             padding: 15px;
             border-radius: 8px;
-            text-align: center;
-            font-weight: bold;
-        }
-        
-        .status.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .status.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+            border-left: 4px solid #2196F3;
+            margin: 20px 0;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Code 128 & QR Code Generator</h1>
+        <h1>🏷️ Code-128 Barcode Generator</h1>
         
-        <div class="info-box">
-            <h3>📊 Batch Generation: Up to 4000 Files</h3>
-            <p>Generate PNG files for values 4000 to 5999<br>
-            • 2000 Code 128 barcodes (with checksums)<br>
-            • 2000 QR codes</p>
+        <div class="info">
+            <strong>Spezifikationen:</strong><br>
+            • 2000 PNG-Dateien (Werte 4000-5999)<br>
+            • Format: 200x90 Pixel<br>
+            • Code-128 mit Prüfziffern<br>
+            • Barcode: 80% der Höhe, Text darunter
         </div>
-        
-        <div class="download-info">
-            💾 Files will be packaged in a ZIP file for easy download
-        </div>
-        
+
         <div class="controls">
-            <div class="control-group">
-                <label for="codeType">Code Type:</label>
-                <select id="codeType">
-                    <option value="both">Both Code 128 & QR Codes</option>
-                    <option value="code128">Code 128 Barcodes Only</option>
-                    <option value="qr">QR Codes Only</option>
-                </select>
-            </div>
-            
-            <div class="control-group">
-                <label for="width">Image Width (pixels):</label>
-                <input type="number" id="width" value="200" min="100" max="500">
-            </div>
-            
-            <div class="control-group">
-                <label for="height">Image Height (pixels):</label>
-                <input type="number" id="height" value="100" min="50" max="200">
-            </div>
-            
-            <div class="control-group">
-                <label for="format">Image Format:</label>
-                <select id="format">
-                    <option value="png">PNG</option>
-                    <option value="jpeg">JPEG</option>
-                </select>
-            </div>
-            
-            <div class="control-group">
-                <label for="filename">Filename Pattern:</label>
-                <select id="filename">
-                    <option value="barcode_{value}">barcode_4000.png, qr_4000.png, ...</option>
-                    <option value="{value}">4000_barcode.png, 4000_qr.png, ...</option>
-                    <option value="code_{type}_{value}">code_barcode_4000.png, code_qr_4000.png, ...</option>
-                </select>
-            </div>
+            <button id="generateBtn" onclick="generateAllBarcodes()">
+                Alle 2000 Barcodes generieren
+            </button>
         </div>
-        
-        <div class="button-group">
-            <button class="btn-preview" onclick="generatePreview()">🔍 Preview Sample Codes</button>
-            <button class="btn-generate" onclick="generateAllCodes()">🚀 Generate ZIP File</button>
+
+        <div class="progress" id="progressContainer" style="display: none;">
+            <div class="progress-bar" id="progressBar"></div>
         </div>
-        
-        <div class="progress-container" id="progressContainer">
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
-            <div class="progress-text" id="progressText">Preparing...</div>
-        </div>
-        
-        <div id="status"></div>
-        
-        <div class="preview-section">
-            <div id="previewGrid" class="preview-grid"></div>
+        <div class="status" id="status"></div>
+
+        <div class="preview" id="preview" style="display: none;">
+            <h3>Vorschau:</h3>
+            <div class="barcode-preview" id="barcodePreview"></div>
         </div>
     </div>
 
     <script>
-        let generatedZip = null;
-        
-        function generateBarcode(value, width, height) {
+        // Code-128 Zeichen-Set und Encoding
+        const CODE128_CHARS = {
+            ' ': 0, '!': 1, '"': 2, '#': 3, '$': 4, '%': 5, '&': 6, "'": 7,
+            '(': 8, ')': 9, '*': 10, '+': 11, ',': 12, '-': 13, '.': 14, '/': 15,
+            '0': 16, '1': 17, '2': 18, '3': 19, '4': 20, '5': 21, '6': 22, '7': 23,
+            '8': 24, '9': 25, ':': 26, ';': 27, '<': 28, '=': 29, '>': 30, '?': 31,
+            '@': 32, 'A': 33, 'B': 34, 'C': 35, 'D': 36, 'E': 37, 'F': 38, 'G': 39,
+            'H': 40, 'I': 41, 'J': 42, 'K': 43, 'L': 44, 'M': 45, 'N': 46, 'O': 47,
+            'P': 48, 'Q': 49, 'R': 50, 'S': 51, 'T': 52, 'U': 53, 'V': 54, 'W': 55,
+            'X': 56, 'Y': 57, 'Z': 58, '[': 59, '\\': 60, ']': 61, '^': 62, '_': 63,
+            '`': 64, 'a': 65, 'b': 66, 'c': 67, 'd': 68, 'e': 69, 'f': 70, 'g': 71,
+            'h': 72, 'i': 73, 'j': 74, 'k': 75, 'l': 76, 'm': 77, 'n': 78, 'o': 79,
+            'p': 80, 'q': 81, 'r': 82, 's': 83, 't': 84, 'u': 85, 'v': 86, 'w': 87,
+            'x': 88, 'y': 89, 'z': 90, '{': 91, '|': 92, '}': 93, '~': 94
+        };
+
+        // Code-128 Bit-Muster
+        const CODE128_PATTERNS = [
+            "11011001100", "11001101100", "11001100110", "10010011000", "10010001100",
+            "10001001100", "10011001000", "10011000100", "10001100100", "11001001000",
+            "11001000100", "11000100100", "10110011100", "10011011100", "10011001110",
+            "10111001100", "10011101100", "10011100110", "11001110010", "11001011100",
+            "11001001110", "11011100100", "11001110100", "11101101110", "11101001100",
+            "11100101100", "11100100110", "11101100100", "11100110100", "11100110010",
+            "11011011000", "11011000110", "11000110110", "10100011000", "10001011000",
+            "10001000110", "10110001000", "10001101000", "10001100010", "11010001000",
+            "11000101000", "11000100010", "10110111000", "10110001110", "10001101110",
+            "10111011000", "10111000110", "10001110110", "11101110110", "11010001110",
+            "11000101110", "11011101000", "11011100010", "11011101110", "11101011000",
+            "11101000110", "11100010110", "11101101000", "11101100010", "11100011010",
+            "11101111010", "11001000010", "11110001010", "10100110000", "10100001100",
+            "10010110000", "10010000110", "10000101100", "10000100110", "10110010000",
+            "10110000100", "10011010000", "10011000010", "10000110100", "10000110010",
+            "11000010010", "11001010000", "11110111010", "11000010100", "10001111010",
+            "10100111100", "10010111100", "10010011110", "10111100100", "10011110100",
+            "10011110010", "11110100100", "11110010100", "11110010010", "11011011110",
+            "11011110110", "11110110110", "10101111000", "10100011110", "10001011110",
+            "10111101000", "10111100010", "11110101000", "11110100010", "10111011110",
+            "10111101110", "11101011110", "11110101110", "11010000100", "11010010000",
+            "11010011100", "1100011101011"
+        ];
+
+        const START_B = 104;
+        const STOP = 106;
+
+        function calculateChecksum(data) {
+            let checksum = START_B;
+            for (let i = 0; i < data.length; i++) {
+                checksum += CODE128_CHARS[data[i]] * (i + 1);
+            }
+            return checksum % 103;
+        }
+
+        function generateBarcode(text) {
+            const data = text.toString();
+            let encoded = [START_B];
+            
+            for (let char of data) {
+                encoded.push(CODE128_CHARS[char]);
+            }
+            
+            const checksum = calculateChecksum(data);
+            encoded.push(checksum);
+            encoded.push(STOP);
+            
+            let pattern = '';
+            for (let code of encoded) {
+                pattern += CODE128_PATTERNS[code];
+            }
+            pattern += '11'; // Quiet zone
+            
+            return pattern;
+        }
+
+        function createBarcodeImage(value) {
             const canvas = document.createElement('canvas');
+            canvas.width = 200;
+            canvas.height = 90;
+            const ctx = canvas.getContext('2d');
             
-            try {
-                JsBarcode(canvas, value.toString(), {
-                    format: "CODE128",
-                    width: 2,
-                    height: height,
-                    displayValue: false,
-                    fontSize: 14,
-                    textMargin: 0,
-                    margin: 5
-                });
-                
-                // Resize canvas to exact dimensions
-                const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = width;
-                tempCanvas.height = height + 40; // Extra space for text
-                const ctx = tempCanvas.getContext('2d');
-                ctx.fillStyle = 'white';
-                ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-                ctx.drawImage(canvas, 0, 0, tempCanvas.width, tempCanvas.height);
-                
-                return tempCanvas;
-            } catch (error) {
-                console.error('Error generating barcode for value:', value, error);
-                return null;
+            // Weißer Hintergrund
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, 200, 90);
+            
+            // Barcode generieren
+            const pattern = generateBarcode(value);
+            const barcodeHeight = 60; // Feste Höhe für den Barcode
+            const barWidth = 180 / pattern.length; // Platz für Quiet zones
+            
+            ctx.fillStyle = 'black';
+            let x = 10; // Quiet zone links
+            
+            for (let i = 0; i < pattern.length; i++) {
+                if (pattern[i] === '1') {
+                    ctx.fillRect(x, 5, Math.max(1, barWidth), barcodeHeight);
+                }
+                x += barWidth;
             }
+            
+            // Text unter dem Barcode (mit Abstand)
+            ctx.fillStyle = 'black';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(value.toString(), 100, 82);
+            
+            return canvas;
         }
-        
-        async function generateQRCode(value, size) {
-            try {
-                const canvas = document.createElement('canvas');
-                await QRCode.toCanvas(canvas, value.toString(), {
-                    width: size,
-                    height: size,
-                    margin: 2,
-                    color: {
-                        dark: '#000000',
-                        light: '#FFFFFF'
-                    }
-                });
-                return canvas;
-            } catch (error) {
-                console.error('Error generating QR code for value:', value, error);
-                return null;
-            }
-        }
-        
-        function canvasToBlob(canvas, format) {
+
+        async function downloadImage(canvas, filename) {
             return new Promise((resolve) => {
-                const mimeType = format === 'png' ? 'image/png' : 'image/jpeg';
-                canvas.toBlob(resolve, mimeType);
+                canvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    resolve();
+                });
             });
         }
-        
-        function getFilename(value, type = 'barcode') {
-            const pattern = document.getElementById('filename').value;
-            const format = document.getElementById('format').value;
-            
-            let filename = pattern;
-            if (pattern === 'barcode_{value}') {
-                filename = type === 'qr' ? `qr_${value}` : `barcode_${value}`;
-            } else if (pattern === '{value}') {
-                filename = type === 'qr' ? `${value}_qr` : `${value}_barcode`;
-            } else if (pattern === 'code_{type}_{value}') {
-                filename = `code_${type}_${value}`;
-            }
-            
-            return filename + '.' + format;
-        }
-        
-        function updateProgress(current, total, type = '') {
-            const percent = Math.round((current / total) * 100);
-            document.getElementById('progressFill').style.width = percent + '%';
-            document.getElementById('progressText').textContent = `Processed ${current} of ${total} ${type} (${percent}%)`;
-        }
-        
-        function showStatus(message, type = 'success') {
-            const statusDiv = document.getElementById('status');
-            statusDiv.textContent = message;
-            statusDiv.className = `status ${type}`;
-            statusDiv.style.display = 'block';
-        }
-        
-        function downloadZip(zip, filename) {
-            zip.generateAsync({type:"blob"}).then(function(content) {
-                const url = URL.createObjectURL(content);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = filename;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            });
-        }
-        
-        async function generateAllCodes() {
-            const width = parseInt(document.getElementById('width').value);
-            const height = parseInt(document.getElementById('height').value);
-            const codeType = document.getElementById('codeType').value;
-            const format = document.getElementById('format').value;
+
+        async function generateAllBarcodes() {
+            const btn = document.getElementById('generateBtn');
             const progressContainer = document.getElementById('progressContainer');
-            const generateBtn = document.querySelector('.btn-generate');
+            const progressBar = document.getElementById('progressBar');
+            const status = document.getElementById('status');
+            const preview = document.getElementById('preview');
+            const barcodePreview = document.getElementById('barcodePreview');
             
-            // Show progress and disable button
+            btn.disabled = true;
             progressContainer.style.display = 'block';
-            generateBtn.disabled = true;
-            generateBtn.textContent = '⏳ Generating...';
+            preview.style.display = 'block';
             
-            try {
-                const zip = new JSZip();
-                let totalFiles = 0;
-                let processed = 0;
-                
-                // Calculate total files based on selection
-                if (codeType === 'both') totalFiles = 4000;
-                else totalFiles = 2000;
-                
-                // Generate Code 128 barcodes if selected
-                if (codeType === 'both' || codeType === 'code128') {
-                    for (let i = 4000; i <= 5999; i++) {
-                        const canvas = generateBarcode(i, width, height);
-                        if (canvas) {
-                            const filename = getFilename(i, 'barcode');
-                            const blob = await canvasToBlob(canvas, format);
-                            zip.file(filename, blob);
-                            processed++;
-                            
-                            // Update progress every 100 files
-                            if (processed % 100 === 0 || processed === totalFiles) {
-                                updateProgress(processed, totalFiles, 'files');
-                                await new Promise(resolve => setTimeout(resolve, 1));
-                            }
-                        }
-                    }
-                }
-                
-                // Generate QR codes if selected  
-                if (codeType === 'both' || codeType === 'qr') {
-                    for (let i = 4000; i <= 5999; i++) {
-                        const canvas = await generateQRCode(i, Math.min(width, height));
-                        if (canvas) {
-                            const filename = getFilename(i, 'qr');
-                            const blob = await canvasToBlob(canvas, format);
-                            zip.file(filename, blob);
-                            processed++;
-                            
-                            // Update progress every 100 files
-                            if (processed % 100 === 0 || processed === totalFiles) {
-                                updateProgress(processed, totalFiles, 'files');
-                                await new Promise(resolve => setTimeout(resolve, 1));
-                            }
-                        }
-                    }
-                }
-                
-                // Generate and download ZIP
-                document.getElementById('progressText').textContent = 'Creating ZIP file...';
-                const zipFilename = `barcodes_${codeType}_${Date.now()}.zip`;
-                downloadZip(zip, zipFilename);
-                
-                showStatus(`✅ Successfully generated ${processed} files in ZIP archive!`, 'success');
-                generateBtn.textContent = '📦 Download Complete';
-                
-            } catch (error) {
-                console.error('Error during batch generation:', error);
-                showStatus('❌ Error occurred during generation. Check console for details.', 'error');
-                generateBtn.textContent = '🚀 Generate ZIP File';
-            } finally {
-                generateBtn.disabled = false;
-                setTimeout(() => {
-                    progressContainer.style.display = 'none';
-                    if (generateBtn.textContent === '📦 Download Complete') {
-                        generateBtn.textContent = '🚀 Generate ZIP File';
-                    }
-                }, 3000);
-            }
-        }
-        
-        async function generatePreview() {
-            const width = parseInt(document.getElementById('width').value);
-            const height = parseInt(document.getElementById('height').value);
-            const codeType = document.getElementById('codeType').value;
-            const previewGrid = document.getElementById('previewGrid');
+            const total = 2000;
+            let completed = 0;
             
-            previewGrid.innerHTML = '';
+            // Vorschau des ersten Barcodes
+            const previewCanvas = createBarcodeImage(4000);
+            barcodePreview.innerHTML = '';
+            barcodePreview.appendChild(previewCanvas);
             
-            // Generate preview for first 3 values (4000-4002) for each type
-            for (let i = 4000; i <= 4002; i++) {
-                // Generate barcode if selected
-                if (codeType === 'both' || codeType === 'code128') {
-                    const canvas = generateBarcode(i, width, height);
-                    if (canvas) {
-                        const previewItem = document.createElement('div');
-                        previewItem.className = 'preview-item';
-                        
-                        const clonedCanvas = document.createElement('canvas');
-                        clonedCanvas.width = canvas.width;
-                        clonedCanvas.height = canvas.height;
-                        const ctx = clonedCanvas.getContext('2d');
-                        ctx.drawImage(canvas, 0, 0);
-                        
-                        const valueDiv = document.createElement('div');
-                        valueDiv.className = 'barcode-value';
-                        valueDiv.textContent = `Code 128: ${i}`;
-                        
-                        previewItem.appendChild(clonedCanvas);
-                        previewItem.appendChild(valueDiv);
-                        previewGrid.appendChild(previewItem);
-                    }
-                }
+            status.textContent = 'Generiere Barcodes...';
+            
+            for (let i = 4000; i <= 5999; i++) {
+                const canvas = createBarcodeImage(i);
+                const filename = `barcode_${i}.png`;
                 
-                // Generate QR code if selected
-                if (codeType === 'both' || codeType === 'qr') {
-                    const canvas = await generateQRCode(i, Math.min(width, height));
-                    if (canvas) {
-                        const previewItem = document.createElement('div');
-                        previewItem.className = 'preview-item';
-                        
-                        const clonedCanvas = document.createElement('canvas');
-                        clonedCanvas.width = canvas.width;
-                        clonedCanvas.height = canvas.height;
-                        const ctx = clonedCanvas.getContext('2d');
-                        ctx.drawImage(canvas, 0, 0);
-                        
-                        const valueDiv = document.createElement('div');
-                        valueDiv.className = 'barcode-value';
-                        valueDiv.textContent = `QR Code: ${i}`;
-                        
-                        previewItem.appendChild(clonedCanvas);
-                        previewItem.appendChild(valueDiv);
-                        previewGrid.appendChild(previewItem);
-                    }
+                await downloadImage(canvas, filename);
+                
+                completed++;
+                const progress = (completed / total) * 100;
+                progressBar.style.width = progress + '%';
+                status.textContent = `${completed} von ${total} Barcodes generiert (${Math.round(progress)}%)`;
+                
+                // Kleine Pause für UI-Updates
+                if (completed % 10 === 0) {
+                    await new Promise(resolve => setTimeout(resolve, 1));
                 }
             }
             
-            const typeText = codeType === 'both' ? 'Code 128 & QR codes' : 
-                           codeType === 'code128' ? 'Code 128 barcodes' : 'QR codes';
-            showStatus(`📋 Preview generated for ${typeText} (values 4000-4002)`, 'success');
+            status.textContent = '✅ Alle 2000 Barcodes erfolgreich generiert!';
+            btn.disabled = false;
+            btn.textContent = 'Erneut generieren';
         }
-        
-        // Generate initial preview
-        window.addEventListener('load', function() {
-            setTimeout(generatePreview, 500);
-        });
+
+        // Teste die Barcode-Generierung beim Laden
+        window.onload = function() {
+            const testCanvas = createBarcodeImage(4000);
+            console.log('Barcode-Generator bereit');
+        };
     </script>
 </body>
 </html>
